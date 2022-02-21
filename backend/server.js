@@ -36,7 +36,7 @@ app.get("/login", async (req, res) => {
 
       if (validPass) {
         const user = {
-          customer_id: userDetails.customer_id,
+          id: userDetails.id,
         };
         const accessToken = generateAccessToken(user);
         console.log(accessToken);
@@ -74,6 +74,20 @@ app.post("/register", async (req, res) => {
 });
 
 //get user admin
+app.get("/admin", auth, async (req, res) => {
+  try {
+    console.log(req.user);
+    const { id } = req.user;
+    console.log(id);
+    const user = await pool.query("SELECT admin FROM users WHERE id = $1", [
+      id,
+    ]);
+
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+  }
+});
 
 app.listen(5002, () => {
   console.log("server has started on port 5002");
