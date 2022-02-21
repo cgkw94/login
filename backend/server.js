@@ -77,17 +77,17 @@ app.post("/register", async (req, res) => {
   }
 });
 
-//get user admin
-app.get("/admin", auth, async (req, res) => {
+//get user details
+app.get("/user", auth, async (req, res) => {
   try {
-    console.log(req.user);
     const { id } = req.user;
-    console.log(id);
-    const user = await pool.query("SELECT admin FROM users WHERE id = $1", [
-      id,
-    ]);
 
-    res.json(user);
+    const user = await pool.query(
+      "SELECT username, admin FROM users WHERE id = $1",
+      [id]
+    );
+
+    res.json(user.rows[0]);
   } catch (err) {
     console.error(err.message);
   }

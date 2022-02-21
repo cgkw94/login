@@ -18,7 +18,6 @@ import {
   RadioGroup,
   Radio,
 } from "@chakra-ui/react";
-import { EmailIcon } from "@chakra-ui/icons";
 
 const LoginPage = () => {
   const [error, setError] = useState("");
