@@ -23,12 +23,14 @@ function generateAccessToken(user) {
   });
 }
 
-app.get("/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
+
     const user = await pool.query("SELECT * FROM users WHERE username = $1", [
-      username,
+      username.toLowerCase(),
     ]);
+
     const userDetails = user.rows[0];
 
     if (userDetails) {
@@ -39,7 +41,8 @@ app.get("/login", async (req, res) => {
           id: userDetails.id,
         };
         const accessToken = generateAccessToken(user);
-        console.log(accessToken);
+
+        res.json({ jwt: accessToken });
       } else {
         res.json("Incorrect Password");
       }
@@ -54,17 +57,18 @@ app.get("/login", async (req, res) => {
 //register
 app.post("/register", async (req, res) => {
   try {
+    console.log(req.body);
     const { username, password, admin } = req.body;
 
     const hash = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
       `
-      INSERT INTO users (username, password, admin) 
-      VALUES($1, $2, $3) 
+      INSERT INTO users (username, password, admin)
+      VALUES($1, $2, $3)
       RETURNING *
       `,
-      [username, hash, admin]
+      [username.toLowerCase(), hash, admin]
     );
 
     res.json(newUser.rows[0]);

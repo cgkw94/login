@@ -22,16 +22,15 @@ import { EmailIcon } from "@chakra-ui/icons";
 
 const LoginPage = () => {
   const [error, setError] = useState("");
-  const [usernameInput, setUsernameInput] = useState("");
-  const [passwordInput, setPasswordInput] = useState("");
+  const [user, setUser] = useState({
+    username: "",
+    password: "",
+  });
   const [rpassword, setRpassword] = useState("");
   const [newUser, setNewUser] = useState({
     username: "",
     password: "",
-    first_name: "",
-    last_name: "",
-    mobile_number: "",
-    email: "",
+    admin: "",
   });
 
   const [show, setShow] = useState(false);
@@ -46,35 +45,18 @@ const LoginPage = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        username: usernameInput,
-        password: passwordInput,
-      }),
+      body: JSON.stringify(user),
     });
 
     const data = await res.json();
-
-    if (data.accessToken) {
+    console.log(data);
+    if (data.jwt) {
       setError("Logging in");
 
-      cookies.set("token", data.accessToken, {
+      cookies.set("jwt", data.jwt, {
         path: "/",
         maxAge: 2 * 60 * 60,
       });
-      cookies.set("username", data.username, {
-        path: "/",
-        maxAge: 2 * 60 * 60,
-      });
-      cookies.set("admin", data.admin, {
-        path: "/",
-        maxAge: 2 * 60 * 60,
-      });
-      cookies.set("loggedIn", data.loggedIn, {
-        path: "/",
-        maxAge: 2 * 60 * 60,
-      });
-
-      window.location.href = "/";
     } else {
       setError(data);
     }
@@ -86,13 +68,17 @@ const LoginPage = () => {
   };
 
   const handleLoginUsername = (e) => {
-    setUsernameInput(e.target.value);
+    setUser((prevState) => {
+      return { ...prevState, username: e.target.value };
+    });
   };
 
   const handleLoginPassword = (e) => {
-    setPasswordInput(e.target.value);
+    setUser((prevState) => {
+      return { ...prevState, password: e.target.value };
+    });
   };
-
+  console.log(user);
   const handleUsername = (e) => {
     setNewUser((prevState) => {
       return { ...prevState, username: e.target.value };
@@ -109,21 +95,26 @@ const LoginPage = () => {
     setRpassword(e.target.value);
   };
 
+  const handleUserType = (e) => {
+    let admin = false;
+
+    if (e.target.value === "true") {
+      admin = true;
+    } else {
+      admin = false;
+    }
+
+    setNewUser((prevState) => {
+      return { ...prevState, admin: admin };
+    });
+  };
+
   const handleNew = (e) => {
     e.preventDefault();
-    if (
-      newUser.username.length === 0 ||
-      newUser.password.length === 0 ||
-      newUser.email.length === 0 ||
-      newUser.first_name.length === 0 ||
-      newUser.last_name.length === 0 ||
-      newUser.mobile_number.length === 0
-    ) {
+    if (newUser.username.length === 0 || newUser.password.length === 0) {
       setError("All fields are required.");
     } else if (newUser.password !== rpassword) {
       setError("Passwords do not match.");
-    } else if (newUser.email.includes("@") === false) {
-      setError("Invalid Email address.");
     } else {
       createUser();
     }
@@ -140,7 +131,7 @@ const LoginPage = () => {
 
     if (
       data ===
-      'duplicate key value violates unique constraint "unique_username"'
+      'duplicate key value violates unique constraint "username_unique"'
     ) {
       setError("Username taken");
     } else {
@@ -226,9 +217,9 @@ const LoginPage = () => {
                   </InputRightElement>
                 </InputGroup>
                 <RadioGroup>
-                  <Stack direction="row">
-                    <Radio value="work">Normal</Radio>
-                    <Radio value="home">Admin</Radio>
+                  <Stack direction="row" onChange={handleUserType}>
+                    <Radio value="false">Normal</Radio>
+                    <Radio value="true">Admin</Radio>
                   </Stack>
                 </RadioGroup>
                 <FormControl isInvalid={error}>
