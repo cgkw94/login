@@ -8,7 +8,7 @@ a button to direct user to 'admin' page.
 deny access if user is not admin.  
 logout button.  
 
-#stack
+# stack
 DB - Postgresql.  
 Backend - NodeJS Express.  
 Frontend - React framework.  
