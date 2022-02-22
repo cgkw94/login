@@ -31,7 +31,6 @@ const LoginPage = () => {
     password: "",
     admin: "",
   });
-
   const [show, setShow] = useState(false);
 
   const handleClick = () => setShow(!show);
@@ -48,7 +47,6 @@ const LoginPage = () => {
     });
 
     const data = await res.json();
-    console.log(data);
     if (data.jwt) {
       setError("Logging in");
 
@@ -56,6 +54,8 @@ const LoginPage = () => {
         path: "/",
         maxAge: 2 * 60 * 60,
       });
+
+      window.location.href = "/home";
     } else {
       setError(data);
     }
@@ -77,7 +77,7 @@ const LoginPage = () => {
       return { ...prevState, password: e.target.value };
     });
   };
-  console.log(user);
+
   const handleUsername = (e) => {
     setNewUser((prevState) => {
       return { ...prevState, username: e.target.value };
